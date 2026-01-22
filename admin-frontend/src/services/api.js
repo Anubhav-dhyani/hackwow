@@ -37,7 +37,8 @@ export const adminAPI = {
   login: (credentials) => api.post('/admin/login', credentials),
   
   // Apps management
-  getApps: () => api.get('/admin/apps'),
+  listApps: () => api.get('/admin/apps'),
+  getApps: () => api.get('/admin/apps'),  // alias for compatibility
   createApp: (appData) => api.post('/admin/apps', appData),
   updateApp: (appId, appData) => api.put(`/admin/apps/${appId}`, appData),
   deleteApp: (appId) => api.delete(`/admin/apps/${appId}`),

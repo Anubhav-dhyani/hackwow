@@ -11,7 +11,6 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
     description: 'Human-readable booking ID (BK-20260122-ABC123)'
   },
   
@@ -19,7 +18,6 @@ const bookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User',
-    index: true,
     description: 'User who made the booking'
   },
   
@@ -27,7 +25,6 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true,
     ref: 'App',
-    index: true,
     description: 'App context'
   },
   
@@ -35,7 +32,6 @@ const bookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Seat',
-    index: true,
     description: 'Booked seat'
   },
   
@@ -52,7 +48,6 @@ const bookingSchema = new mongoose.Schema({
     required: true,
     enum: ['PENDING', 'SUCCESS', 'FAILED'],
     default: 'PENDING',
-    index: true,
     description: 'Payment confirmation status'
   },
   
@@ -80,7 +75,6 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     required: true,
     default: Date.now,
-    index: true,
     description: 'When booking was created'
   },
   

@@ -12,7 +12,6 @@ const appSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    index: true,
     description: 'Unique identifier for the app (e.g., "event-app-prod")'
   },
   
@@ -33,7 +32,6 @@ const appSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: ['EVENT', 'BUS', 'MOVIE'],
-    index: true,
     description: 'Business domain this app belongs to'
   },
   
@@ -48,7 +46,6 @@ const appSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: true,
-    index: true,
     description: 'Master kill switch for the app'
   },
   

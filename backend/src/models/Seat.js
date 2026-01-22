@@ -10,7 +10,6 @@ const seatSchema = new mongoose.Schema({
   appId: {
     type: String,
     required: true,
-    index: true,
     ref: 'App',
     description: 'Which app owns this seat'
   },
@@ -25,7 +24,6 @@ const seatSchema = new mongoose.Schema({
   entityId: {
     type: String,
     required: true,
-    index: true,
     description: 'Event ID, Bus Route ID, Movie Show ID, etc.'
   },
   
@@ -41,7 +39,6 @@ const seatSchema = new mongoose.Schema({
     required: true,
     enum: ['AVAILABLE', 'BOOKED'],
     default: 'AVAILABLE',
-    index: true,
     description: 'MongoDB status (LOCKED state is in Redis)'
   },
   
@@ -62,7 +59,6 @@ const seatSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     default: null,
-    index: true,
     description: 'User who booked this seat'
   },
   
@@ -70,7 +66,6 @@ const seatSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Booking',
     default: null,
-    index: true,
     description: 'Reference to booking document'
   }
 }, {

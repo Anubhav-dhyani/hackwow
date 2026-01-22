@@ -11,7 +11,6 @@ const reservationSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
     description: 'Unique token for this reservation (UUID)'
   },
   
@@ -19,7 +18,6 @@ const reservationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User',
-    index: true,
     description: 'User who made the reservation'
   },
   
@@ -27,7 +25,6 @@ const reservationSchema = new mongoose.Schema({
     type: String,
     required: true,
     ref: 'App',
-    index: true,
     description: 'App context'
   },
   
@@ -35,7 +32,6 @@ const reservationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Seat',
-    index: true,
     description: 'Reserved seat'
   },
   
@@ -44,14 +40,12 @@ const reservationSchema = new mongoose.Schema({
     required: true,
     enum: ['ACTIVE', 'EXPIRED', 'CONFIRMED', 'RELEASED'],
     default: 'ACTIVE',
-    index: true,
     description: 'Reservation lifecycle status'
   },
   
   expiresAt: {
     type: Date,
     required: true,
-    index: true,
     description: 'When this reservation expires'
   },
   
