@@ -10,7 +10,6 @@ const appSchema = new mongoose.Schema({
   appId: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
     description: 'Unique identifier for the app (e.g., "event-app-prod")'
   },

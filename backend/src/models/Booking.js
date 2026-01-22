@@ -10,15 +10,13 @@ const bookingSchema = new mongoose.Schema({
   bookingId: {
     type: String,
     required: true,
-    unique: true,
     description: 'Human-readable booking ID (BK-20260122-ABC123)'
   },
   
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed, // Support both ObjectId (Hackwow users) and String (external users)
     required: true,
-    ref: 'User',
-    description: 'User who made the booking'
+    description: 'User who made the booking (ObjectId for Hackwow users, String for external users)'
   },
   
   appId: {

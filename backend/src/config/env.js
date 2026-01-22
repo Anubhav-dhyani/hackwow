@@ -1,4 +1,8 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
+// Also try loading from src/.env as fallback
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 /**
  * Environment Configuration Validator
@@ -67,8 +71,13 @@ module.exports = {
   // CORS
   CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
   
-  // Payment
+  // Payment (Legacy)
   PAYMENT_SIMULATION: process.env.PAYMENT_SIMULATION === 'true',
+  
+  // Razorpay Configuration
+  RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID || null,
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET || null,
+  RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET || null,
   
   // Helper function
   isDevelopment: () => process.env.NODE_ENV === 'development',

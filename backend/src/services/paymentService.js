@@ -148,9 +148,10 @@ class PaymentService {
    * @returns {Boolean} True if valid
    */
   validatePaymentIdFormat(paymentId) {
-    // Check if payment ID matches our format: PAY-XXXXX-XXXXX
-    const pattern = /^PAY-[A-Z0-9]+-[A-Z0-9]+$/;
-    return pattern.test(paymentId);
+    // Accept both Razorpay format (pay_XXXXX) and simulated format (PAY-XXXXX-XXXXX)
+    const razorpayPattern = /^pay_[A-Za-z0-9]+$/;
+    const simulatedPattern = /^PAY-[A-Z0-9]+-[A-Z0-9]+$/;
+    return razorpayPattern.test(paymentId) || simulatedPattern.test(paymentId);
   }
 
   /**

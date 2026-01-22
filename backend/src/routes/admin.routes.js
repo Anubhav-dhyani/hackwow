@@ -1,13 +1,17 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { body } = require('express-validator');
 const App = require('../models/App');
 const Booking = require('../models/Booking');
+const Seat = require('../models/Seat');
 const { adminAuth, adminLogin } = require('../middleware/adminAuth');
+const { appAuth } = require('../middleware/appAuth');
 const { validate } = require('../middleware/validator');
 const { asyncHandler } = require('../middleware/errorHandler');
 const ApiResponse = require('../utils/response');
 const { ConflictError } = require('../utils/errors');
+const Logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -49,20 +53,24 @@ router.post(
   '/apps',
   adminAuth,
   [
-    body('appId').trim().notEmpty().withMessage('App ID is required'),
     body('name').trim().notEmpty().withMessage('App name is required'),
     body('domain').isIn(['EVENT', 'BUS', 'MOVIE']).withMessage('Valid domain is required'),
-    body('apiKey').isLength({ min: 32 }).withMessage('API key must be at least 32 characters'),
     body('allowedDomains').isArray().withMessage('Allowed domains must be an array'),
     validate
   ],
   asyncHandler(async (req, res) => {
-    const { appId, name, domain, apiKey, allowedDomains, metadata } = req.body;
+    const { name, domain, allowedDomains, metadata } = req.body;
 
-    // Check if app already exists
+    // Generate unique appId
+    const appId = `APP-${crypto.randomUUID()}`;
+    
+    // Generate API key (64 random hex characters)
+    const apiKey = `sk_live_${crypto.randomBytes(32).toString('hex')}`;
+
+    // Check if app already exists (shouldn't happen with UUID, but just in case)
     const existingApp = await App.findOne({ appId });
     if (existingApp) {
-      throw new ConflictError('App ID already exists');
+      throw new ConflictError('App ID collision - please try again');
     }
 
     // Hash API key
@@ -268,6 +276,78 @@ router.post(
         newApiKey // Return only once
       },
       'API key rotated successfully'
+    );
+  })
+);
+
+/**
+ * POST /admin/sync-seats
+ * Bulk create/update seats for a client app
+ * Used by client systems (Bus Ticketing, etc.) to sync their inventory
+ * 
+ * Requires: App authentication (x-app-id, x-api-key)
+ */
+router.post(
+  '/sync-seats',
+  appAuth,
+  [
+    body('entityId').notEmpty().withMessage('Entity ID is required'),
+    body('seats').isArray({ min: 1 }).withMessage('Seats array is required'),
+    body('seats.*.seatNumber').notEmpty().withMessage('Seat number is required'),
+    body('seats.*.price').isFloat({ min: 0 }).withMessage('Valid price is required'),
+    validate
+  ],
+  asyncHandler(async (req, res) => {
+    const { entityId, seats } = req.body;
+    const { appId, domain } = req.app;
+
+    Logger.info('[Seat Sync] Request received', {
+      appId,
+      entityId,
+      seatCount: seats.length
+    });
+
+    // Bulk upsert seats
+    const bulkOps = seats.map(seat => ({
+      updateOne: {
+        filter: {
+          appId,
+          entityId,
+          seatNumber: seat.seatNumber
+        },
+        update: {
+          $set: {
+            appId,
+            domain,
+            entityId,
+            seatNumber: seat.seatNumber,
+            price: seat.price,
+            status: seat.status || 'AVAILABLE',
+            metadata: seat.metadata || {}
+          }
+        },
+        upsert: true
+      }
+    }));
+
+    const result = await Seat.bulkWrite(bulkOps);
+
+    Logger.info('[Seat Sync] Completed', {
+      appId,
+      entityId,
+      inserted: result.upsertedCount,
+      modified: result.modifiedCount
+    });
+
+    return ApiResponse.success(
+      res,
+      {
+        entityId,
+        synced: seats.length,
+        inserted: result.upsertedCount,
+        updated: result.modifiedCount
+      },
+      'Seats synced successfully'
     );
   })
 );

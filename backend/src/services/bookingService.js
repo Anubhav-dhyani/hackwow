@@ -61,6 +61,43 @@ class BookingService {
   }
 
   /**
+   * Get all seats with lock status (for UI display)
+   * @param {String} appId - App ID
+   * @param {String} entityId - Entity ID
+   * @returns {Array} Seats with isLocked and lockExpiresAt properties
+   */
+  async getAllSeatsWithLockStatus(appId, entityId) {
+    // Get all seats (AVAILABLE and BOOKED)
+    const seats = await Seat.find({ appId, entityId }).sort({ seatNumber: 1 }).lean();
+
+    // Check lock status for all seats
+    const seatIds = seats.map(seat => seat._id.toString());
+    const lockStatus = await lockService.bulkCheckLocks(seatIds);
+
+    // Add lock information to each seat
+    const seatsWithStatus = seats.map(seat => {
+      const seatIdStr = seat._id.toString();
+      const lockInfo = lockStatus[seatIdStr];
+      
+      return {
+        ...seat,
+        isLocked: !!lockInfo,
+        lockExpiresAt: lockInfo ? lockInfo.expiresAt : null,
+        lockTTL: lockInfo ? lockInfo.ttl : null
+      };
+    });
+
+    Logger.debug('Seats with lock status fetched', {
+      appId,
+      entityId,
+      total: seatsWithStatus.length,
+      locked: seatsWithStatus.filter(s => s.isLocked).length
+    });
+
+    return seatsWithStatus;
+  }
+
+  /**
    * Reserve a seat (Step 1 of booking)
    * @param {String} appId - App ID
    * @param {String} seatId - Seat ID

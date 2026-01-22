@@ -10,15 +10,13 @@ const reservationSchema = new mongoose.Schema({
   reservationToken: {
     type: String,
     required: true,
-    unique: true,
     description: 'Unique token for this reservation (UUID)'
   },
   
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.Mixed, // Support both ObjectId (Hackwow users) and String (external users)
     required: true,
-    ref: 'User',
-    description: 'User who made the reservation'
+    description: 'User who made the reservation (ObjectId for Hackwow users, String for external users)'
   },
   
   appId: {

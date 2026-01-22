@@ -56,10 +56,9 @@ const seatSchema = new mongoose.Schema({
   },
   
   bookedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: mongoose.Schema.Types.Mixed, // Support both ObjectId and String for external users
     default: null,
-    description: 'User who booked this seat'
+    description: 'User who booked this seat (ObjectId for internal users, String for external users)'
   },
   
   bookingId: {
